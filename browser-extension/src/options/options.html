@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TRUSTLAYER extension settings</title>
+    <link rel="stylesheet" href="options.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">TRUSTLAYER EXTENSION</p>
+        <h1>Protection settings</h1>
+        <p class="lead">Configure the exact TRUSTLAYER environment this extension may contact. These values are not secrets, but they are security boundaries and must match server configuration exactly.</p>
+      </header>
+
+      <form id="settings-form" novalidate>
+        <section>
+          <h2>Backend connection</h2>
+          <label for="api-base-url">Spring Boot API origin</label>
+          <input id="api-base-url" name="apiBaseUrl" type="url" inputmode="url" required>
+          <p>Example local development value: <code>http://localhost:8080</code>. A deployed backend must use HTTPS.</p>
+
+          <label for="web-app-base-url">TRUSTLAYER web app origin</label>
+          <input id="web-app-base-url" name="webAppBaseUrl" type="url" inputmode="url" required>
+          <p>The sign-in and explicit extension-consent page are opened from this origin.</p>
+
+          <label for="client-id">Extension client ID</label>
+          <input id="client-id" name="clientId" type="text" autocomplete="off" required>
+          <p>This must match <code>TRUSTLAYER_EXTENSION_CLIENT_ID</code> on the backend.</p>
+        </section>
+
+        <section>
+          <h2>Exact callback and server allowlist</h2>
+          <label for="redirect-uri">Chrome identity callback URI</label>
+          <input id="redirect-uri" type="text" readonly aria-describedby="redirect-help">
+          <p id="redirect-help">Copy this exact URI into <code>TRUSTLAYER_EXTENSION_REDIRECT_URI</code>. Copy the displayed extension origin into <code>TRUSTLAYER_EXTENSION_ORIGIN</code>. Do not use wildcards.</p>
+          <p id="extension-origin" class="monospace"></p>
+        </section>
+
+        <section>
+          <h2>Optional automatic warning mode</h2>
+          <label class="toggle-row" for="automatic-scanning"><input id="automatic-scanning" name="automaticScanning" type="checkbox"><span><strong>Check supported HTTPS pages after navigation</strong><small>Off by default. Enabling asks Chrome for optional access to website URLs so the extension can submit sanitized destinations for account-scoped analysis.</small></span></label>
+          <label class="toggle-row" for="notifications-enabled"><input id="notifications-enabled" name="notificationsEnabled" type="checkbox"><span><strong>Show desktop notifications for high or critical results</strong><small>Warnings never open a page, block navigation, or send or stop a payment.</small></span></label>
+        </section>
+
+        <p id="feedback" role="status" aria-live="polite"></p>
+        <button type="submit">Save settings</button>
+      </form>
+
+      <section class="boundary">
+        <h2>Coverage and limits</h2>
+        <ul>
+          <li>Only URL analysis is supported. QR images, transaction simulations, and community reporting remain in the web app.</li>
+          <li>URL credentials, query values, and fragments are removed by the extension before a scan request.</li>
+          <li>The backend performs static local structure analysis only. It does not visit websites, follow redirects, or prove a site safe.</li>
+          <li>Disconnecting clears the session-only extension token. Normal account logout or session revocation also invalidates it server-side.</li>
+        </ul>
+      </section>
+    </main>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

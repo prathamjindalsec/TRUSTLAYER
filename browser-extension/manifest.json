@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "TRUSTLAYER — Financial Defense",
+  "version": "0.1.0",
+  "description": "User-controlled, explainable URL risk checks from TRUSTLAYER. It warns; it does not open links or block payments.",
+  "minimum_chrome_version": "116",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "identity",
+    "tabs",
+    "scripting",
+    "notifications"
+  ],
+  "host_permissions": [],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Check this site with TRUSTLAYER",
+    "default_popup": "src/popup/popup.html"
+  },
+  "options_page": "src/options/options.html",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; base-uri 'none'"
+  }
+}

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TRUSTLAYER</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="popup-shell">
+      <header class="brand-row">
+        <div class="brand-mark" aria-hidden="true">TL</div>
+        <div><p class="eyebrow">FINANCIAL DEFENSE</p><h1>TRUSTLAYER</h1></div>
+        <button id="open-options" class="icon-button" type="button" aria-label="Open extension settings">⚙</button>
+      </header>
+
+      <section class="status-card" aria-live="polite">
+        <p id="connection-status" class="status-line">Checking connection…</p>
+        <button id="connect" class="secondary-button" type="button">Connect securely</button>
+      </section>
+
+      <section class="scan-card" aria-labelledby="current-page-title">
+        <p class="eyebrow" id="current-page-title">CURRENT PAGE</p>
+        <p id="current-url" class="url-text">Loading page URL…</p>
+        <p id="privacy-note" class="subtle">Credentials, query values, and fragments are removed before analysis.</p>
+        <button id="scan" class="primary-button" type="button">Check this destination</button>
+        <p id="error" class="error" role="alert" hidden></p>
+      </section>
+
+      <section id="result" class="result-card" hidden aria-live="polite">
+        <div class="result-topline"><div><p class="eyebrow">STATIC URL ASSESSMENT</p><p id="result-score" class="score"></p></div><span id="result-risk" class="risk-badge"></span></div>
+        <p id="result-target" class="subtle"></p>
+        <h2>Observed indicators</h2>
+        <ul id="indicators" class="compact-list"></ul>
+        <h2>Recommended next step</h2>
+        <p id="recommendation" class="subtle"></p>
+        <p class="boundary">TRUSTLAYER did not open this site, inspect its content, or block any payment or navigation.</p>
+      </section>
+
+      <footer><button id="disconnect" class="link-button" type="button" hidden>Disconnect extension</button><span>Explainable signals, not a safety guarantee.</span></footer>
+    </main>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
