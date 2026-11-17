@@ -1,0 +1,81 @@
+{
+  "info": {
+    "_postman_id": "aac0d311-236a-464a-8f2f-3a796e49919f",
+    "name": "TRUSTLAYER - Phase 7 Simulated Transaction Risk",
+    "description": "Prerequisite: complete Phase 3 authentication, paste a valid access JWT into accessToken, and keep Postman's cookie jar enabled. This collection submits demonstrations only. It cannot send, approve, decline, or block any real payment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "accessToken", "value": "paste-a-valid-access-jwt-here" },
+    { "key": "csrfToken", "value": "" },
+    { "key": "transactionId", "value": "" },
+    { "key": "transactionTime", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Get CSRF token",
+      "event": [{
+        "listen": "test",
+        "script": { "type": "text", "exec": [
+          "pm.test('CSRF token request returns 200', function () { pm.response.to.have.status(200); });",
+          "pm.collectionVariables.set('csrfToken', pm.response.json().data.token);"
+        ]}
+      }],
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/auth/csrf" },
+      "response": []
+    },
+    {
+      "name": "2. Analyze simulated transaction",
+      "event": [{
+        "listen": "prerequest",
+        "script": { "type": "text", "exec": [
+          "pm.collectionVariables.set('transactionTime', new Date().toISOString());"
+        ]}
+      }, {
+        "listen": "test",
+        "script": { "type": "text", "exec": [
+          "pm.test('simulation returns 201', function () { pm.response.to.have.status(201); });",
+          "const response = pm.response.json();",
+          "pm.expect(response.data.simulated).to.eql(true);",
+          "pm.expect(response.data.explanation.simulationOnly).to.eql(true);",
+          "pm.collectionVariables.set('transactionId', response.data.transactionId);"
+        ]}
+      }],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" },
+          { "key": "X-XSRF-TOKEN", "value": "{{csrfToken}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 120000.00,\n  \"currency\": \"INR\",\n  \"beneficiaryIdentifier\": \"demo-beneficiary@bank\",\n  \"transactionTime\": \"{{transactionTime}}\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/api/transactions/analyze",
+        "description": "Demo-only behavioral analysis. Raw beneficiary input is redacted in the stored result and response."
+      },
+      "response": []
+    },
+    {
+      "name": "3. Get my simulated transaction history",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+        "url": "{{baseUrl}}/api/transactions/history?page=0&size=20"
+      },
+      "response": []
+    },
+    {
+      "name": "4. Get my simulation by ID",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+        "url": "{{baseUrl}}/api/transactions/{{transactionId}}"
+      },
+      "response": []
+    }
+  ]
+}
