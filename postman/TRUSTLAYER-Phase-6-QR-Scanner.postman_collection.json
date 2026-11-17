@@ -1,0 +1,81 @@
+{
+  "info": {
+    "_postman_id": "093847ab-4552-4bfd-899b-6736e6445d59",
+    "name": "TRUSTLAYER - Phase 6 QR Scanner",
+    "description": "Prerequisite: complete registration, verification, and sign-in through the Phase 3 Authentication collection. Paste the returned access JWT into accessToken. Set qrImagePath to a harmless local PNG or JPEG that contains a QR code. Run Get CSRF token before Scan QR image and leave Postman's cookie jar enabled. The backend will decode the image locally but will not open a URL or initiate any payment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "accessToken", "value": "paste-a-valid-access-jwt-here" },
+    { "key": "csrfToken", "value": "" },
+    { "key": "scanId", "value": "" },
+    { "key": "qrImagePath", "value": "/absolute/path/to/harmless-test-qr.png" }
+  ],
+  "item": [
+    {
+      "name": "1. Get CSRF token",
+      "event": [{
+        "listen": "test",
+        "script": { "type": "text", "exec": [
+          "pm.test('CSRF token request returns 200', function () { pm.response.to.have.status(200); });",
+          "pm.collectionVariables.set('csrfToken', pm.response.json().data.token);"
+        ]}
+      }],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/auth/csrf",
+        "description": "Postman stores the matching XSRF-TOKEN cookie and the test stores the token value."
+      },
+      "response": []
+    },
+    {
+      "name": "2. Scan QR image",
+      "event": [{
+        "listen": "test",
+        "script": { "type": "text", "exec": [
+          "pm.test('QR scan returns 201', function () { pm.response.to.have.status(201); });",
+          "const response = pm.response.json();",
+          "pm.expect(response.data.explanation.decodedPayloadStored).to.eql(false);",
+          "pm.expect(response.data.explanation.externalActionInitiated).to.eql(false);",
+          "pm.collectionVariables.set('scanId', response.data.scanId);"
+        ]}
+      }],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" },
+          { "key": "X-XSRF-TOKEN", "value": "{{csrfToken}}", "type": "text" }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "image", "type": "file", "src": "{{qrImagePath}}" }
+          ]
+        },
+        "url": "{{baseUrl}}/api/scanner/qr",
+        "description": "The selected PNG/JPEG is decoded in memory only. No decoded URL or payment instruction is executed."
+      },
+      "response": []
+    },
+    {
+      "name": "3. Get my QR scan history",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+        "url": "{{baseUrl}}/api/scanner/qr/history?page=0&size=20"
+      },
+      "response": []
+    },
+    {
+      "name": "4. Get my QR scan by ID",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+        "url": "{{baseUrl}}/api/scanner/qr/{{scanId}}"
+      },
+      "response": []
+    }
+  ]
+}
