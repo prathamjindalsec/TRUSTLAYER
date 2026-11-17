@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+
+# IDE settings
+.idea/
+.vscode/
+*.iml
+
+# Java / Maven build output
+backend/target/
+frontend/node_modules/
+frontend/dist/
+browser-extension/node_modules/
+work/
+
+# Local configuration and secrets
+.env
+.env.*
+!*.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+backend/src/main/resources/application-local.yml
+
+# Local Codex validation artifacts and intermediate presentation exports
+.codex-finalizer/
+outputs/*
+!outputs/trustlayer-hackathon-presentation-final.pptx
