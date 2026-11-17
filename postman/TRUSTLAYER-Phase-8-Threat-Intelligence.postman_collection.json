@@ -1,0 +1,112 @@
+{
+  "info": {
+    "_postman_id": "3ba7c074-fd72-4a46-985c-50810acbfd54",
+    "name": "TRUSTLAYER - Phase 8 Community Threat Intelligence",
+    "description": "Prerequisite: complete Phase 3 authentication, set accessToken to a valid JWT, and keep Postman's cookie jar enabled. Community reports are unverified submissions, not automatic fraud findings.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "accessToken", "value": "paste-a-valid-access-jwt-here" },
+    { "key": "csrfToken", "value": "" },
+    { "key": "threatId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Get CSRF token",
+      "event": [{
+        "listen": "test",
+        "script": { "type": "text", "exec": [
+          "pm.test('CSRF token request returns 200', function () { pm.response.to.have.status(200); });",
+          "pm.collectionVariables.set('csrfToken', pm.response.json().data.token);"
+        ]}
+      }],
+      "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/auth/csrf" },
+      "response": []
+    },
+    {
+      "name": "2. Submit unverified suspicious URL report",
+      "event": [{
+        "listen": "test",
+        "script": { "type": "text", "exec": [
+          "pm.test('report returns 201', function () { pm.response.to.have.status(201); });",
+          "const result = pm.response.json().data;",
+          "pm.expect(result.threat.verificationStatus).to.eql('UNVERIFIED');",
+          "pm.expect(result.threat.indicator).not.to.include('private-token');",
+          "pm.collectionVariables.set('threatId', result.threat.threatId);"
+        ]}
+      }],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" },
+          { "key": "X-XSRF-TOKEN", "value": "{{csrfToken}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"indicatorType\": \"URL\",\n  \"indicatorValue\": \"https://paypa1-security.example.zip/login?token=private-token\",\n  \"category\": \"PHISHING\",\n  \"description\": \"An urgent payment request was observed. Do not include personal data here.\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/api/threats/report",
+        "description": "The backend never opens this URL. A single report remains UNVERIFIED."
+      },
+      "response": []
+    },
+    {
+      "name": "3. Search exact typed URL safely",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+        "url": "{{baseUrl}}/api/threats?type=URL&query=https%3A%2F%2Fpaypa1-security.example.zip%2Flogin%3Ftoken%3Dprivate-token"
+      },
+      "response": []
+    },
+    {
+      "name": "4. Get canonical threat by ID",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+        "url": "{{baseUrl}}/api/threats/{{threatId}}"
+      },
+      "response": []
+    },
+    {
+      "name": "5. Get real threat statistics",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+        "url": "{{baseUrl}}/api/threats/statistics"
+      },
+      "response": []
+    },
+    {
+      "name": "6. Get repeated-report candidates",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" }],
+        "url": "{{baseUrl}}/api/threats/campaigns?minReports=3"
+      },
+      "response": []
+    },
+    {
+      "name": "7. Admin-only verification (ordinary user receives 403)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}", "type": "text" },
+          { "key": "X-XSRF-TOKEN", "value": "{{csrfToken}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"verificationStatus\": \"VERIFIED\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/api/admin/threats/{{threatId}}/verification",
+        "description": "Run only with an account already provisioned as database ADMIN. Community report count alone is never enough evidence to verify a threat."
+      },
+      "response": []
+    }
+  ]
+}
