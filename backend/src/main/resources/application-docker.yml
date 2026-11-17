@@ -1,0 +1,7 @@
+# Local Docker demonstration profile. Docker Compose binds its Nginx HTTP port to loopback only;
+# this profile must never be used as a public production deployment. The prod profile intentionally
+# fails startup if Secure cookies or action-token safety are weakened.
+spring:
+  config:
+    activate:
+      on-profile: docker

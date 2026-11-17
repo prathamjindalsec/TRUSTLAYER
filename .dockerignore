@@ -1,0 +1,11 @@
+.git
+.gitignore
+.DS_Store
+**/.DS_Store
+**/node_modules
+**/target
+**/dist
+**/.env
+work
+outputs
+*.log
