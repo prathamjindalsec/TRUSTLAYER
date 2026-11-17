@@ -1,0 +1,163 @@
+{
+  "info": {
+    "_postman_id": "3af5f8b4-6035-489d-85b8-0a9c9685118a",
+    "name": "TRUSTLAYER - Phase 4 URL Scanner",
+    "description": "Prerequisite: register, verify, and sign in through the Phase 3 Authentication collection. Paste the returned access JWT into accessToken. Run Get CSRF token before Scan suspicious URL. Keep Postman's cookie jar enabled for the same localhost host. The scanner does not browse the sample URL.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "accessToken",
+      "value": "paste-a-valid-access-jwt-here"
+    },
+    {
+      "key": "csrfToken",
+      "value": ""
+    },
+    {
+      "key": "scanId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Get CSRF token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('CSRF token request returns 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "const response = pm.response.json();",
+              "pm.collectionVariables.set('csrfToken', response.data.token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/auth/csrf",
+        "description": "Postman stores the matching XSRF-TOKEN cookie. The test script stores the token value."
+      },
+      "response": []
+    },
+    {
+      "name": "2. Scan suspicious URL",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('URL scan returns 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "const response = pm.response.json();",
+              "pm.test('result is explainable and static', function () {",
+              "    pm.expect(response.data.analyzerVersion).to.eql('url-static-rules-v1');",
+              "    pm.expect(response.data.limitations[0]).to.include('did not connect');",
+              "});",
+              "pm.collectionVariables.set('scanId', response.data.scanId);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          },
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"url\": \"https://paypa1-secure.example.zip/login\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/scanner/url",
+        "description": "The text is statically inspected only. TRUSTLAYER does not issue a network request to it."
+      },
+      "response": []
+    },
+    {
+      "name": "3. Get my URL scan history",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('history returns 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "url": "{{baseUrl}}/api/scanner/history?page=0&size=20"
+      },
+      "response": []
+    },
+    {
+      "name": "4. Get my scan by ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('scan detail returns 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}",
+            "type": "text"
+          }
+        ],
+        "url": "{{baseUrl}}/api/scanner/{{scanId}}"
+      },
+      "response": []
+    }
+  ]
+}
