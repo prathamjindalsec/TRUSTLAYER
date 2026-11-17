@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  :root.dark {
+    color-scheme: dark;
+  }
+
+  html {
+    min-width: 320px;
+    background: #f5f7fb;
+  }
+
+  html.dark {
+    background: #07111f;
+  }
+
+  body {
+    @apply min-h-screen bg-slate-50 font-sans text-slate-900 antialiased transition-colors duration-200 dark:bg-ink-950 dark:text-slate-100;
+  }
+
+  * {
+    @apply border-slate-200 dark:border-slate-800;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [tabindex]:focus-visible {
+    @apply outline-none ring-2 ring-trust-500 ring-offset-2 ring-offset-slate-50 dark:ring-offset-ink-950;
+  }
+
+  ::selection {
+    @apply bg-trust-200 text-ink-950;
+  }
+}
+
+@layer components {
+  .surface {
+    @apply rounded-2xl border bg-white shadow-panel dark:border-slate-800 dark:bg-ink-900 dark:shadow-panel-dark;
+  }
+
+  .surface-muted {
+    @apply rounded-xl border bg-slate-50 dark:border-slate-800 dark:bg-ink-850;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-sm font-semibold text-slate-700 dark:text-slate-200;
+  }
+
+  .field-hint {
+    @apply mt-1.5 text-xs leading-5 text-slate-500 dark:text-slate-400;
+  }
+
+  .field-input {
+    @apply block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition hover:border-slate-400 focus:border-trust-500 focus:outline-none focus:ring-2 focus:ring-trust-100 disabled:cursor-not-allowed disabled:bg-slate-100 dark:border-slate-700 dark:bg-ink-850 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-trust-400 dark:focus:ring-trust-500/20 dark:disabled:bg-ink-800;
+  }
+
+  .field-input[aria-invalid='true'] {
+    @apply border-alert-red focus:border-alert-red focus:ring-red-100 dark:focus:ring-red-900/30;
+  }
+
+  .btn-primary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-trust-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-trust-700 focus:outline-none focus:ring-2 focus:ring-trust-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55 dark:bg-trust-500 dark:hover:bg-trust-400;
+  }
+
+  .btn-secondary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-trust-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55 dark:border-slate-700 dark:bg-ink-850 dark:text-slate-100 dark:hover:bg-ink-800;
+  }
+
+  .btn-danger {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-alert-red px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55;
+  }
+
+  .link-inline {
+    @apply font-semibold text-trust-700 underline-offset-4 hover:text-trust-800 hover:underline dark:text-trust-300 dark:hover:text-trust-200;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
