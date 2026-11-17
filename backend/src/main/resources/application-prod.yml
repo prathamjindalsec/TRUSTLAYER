@@ -1,0 +1,23 @@
+# Production profile. TLS is terminated by a trusted reverse proxy/load balancer, so Spring must
+# honor only the forwarded headers received from that private proxy network. Do not expose the
+# backend container directly to the public Internet.
+server:
+  forward-headers-strategy: framework
+  shutdown: graceful
+
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+management:
+  endpoint:
+    health:
+      show-details: never
+
+app:
+  security:
+    cookies:
+      secure: ${TRUSTLAYER_COOKIE_SECURE:true}
+      same-site: ${TRUSTLAYER_COOKIE_SAME_SITE:Strict}
+    development:
+      expose-action-tokens: ${TRUSTLAYER_EXPOSE_ACTION_TOKENS:false}
